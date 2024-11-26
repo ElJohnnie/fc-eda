@@ -89,7 +89,10 @@ func main() {
 				Balance:   event.Payload.BalanceAccountTo,
 			}
 			createBalanceUseCase.Execute(input)
+
+			c.CommitMessage(msg)
+		} else {
+			fmt.Println("Error reading message:", err)
 		}
-		c.CommitMessage(msg)
 	}
 }
