@@ -2,10 +2,10 @@ version: '3'
 
 services:
   wallet-app:
-    # build:
-    #   context: ./wallet
-    #   dockerfile: Dockerfile
-    build: .
+    build:
+      context: ./wallet
+      dockerfile: Dockerfile
+    # build: .
     container_name: wallet
     platform: linux/amd64
     volumes:
@@ -16,10 +16,10 @@ services:
       - wallet-mysql
 
   balances-app:
-    # build:
-    #   context: ./balances
-    #   dockerfile: Dockerfile
-    build: .
+    build:
+      context: ./balances
+      dockerfile: Dockerfile
+    # build: .
     container_name: balances
     platform: linux/amd64
     volumes:
@@ -30,35 +30,36 @@ services:
       - balances-mysql
 
   wallet-mysql:
-    image: mysql:5.7
+    build: ./mysql/wallet
+    command: --innodb-use-native-aio=0
+    platform: linux/x86_64
     container_name: wallet-mysql
-    platform: linux/amd64
     environment:
       MYSQL_ROOT_PASSWORD: root
       MYSQL_DATABASE: wallet
       MYSQL_PASSWORD: root
     ports:
       - 3306:3306
-    # volumes:
-    #   - .docker/wallet:/var/lib/mysql
+    volumes:
+      - ./mysql/wallet/.docker/mysql:/var/lib/mysql
 
   balances-mysql:
-    image: mysql:5.7
+    build: ./mysql/balances
+    command: --innodb-use-native-aio=0
+    platform: linux/x86_64
     container_name: balances-mysql
-    platform: linux/amd64
     environment:
       MYSQL_ROOT_PASSWORD: root
-      MYSQL_DATABASE: balances
+      MYSQL_DATABASE: balance
       MYSQL_PASSWORD: root
     ports:
-      - 3307:3306
-    # volumes:
-    #   - .docker/balances:/var/lib/mysql
+      - 3308:3306
+    volumes:
+      - ./mysql/balances/.docker/mysql:/var/lib/mysql
 
   zookeeper:
     image: "confluentinc/cp-zookeeper:6.1.0"
     container_name: zookeeper
-    platform: linux/amd64
     ports:
       - 2181:2181
     environment:
@@ -72,6 +73,9 @@ services:
     depends_on:
       - zookeeper
     ports:
+    # Exposes 9092 for external connections to the broker
+    # Use kafka:29092 for connections internal on the docker network
+    # See https://rmoff.net/2018/08/02/kafka-listeners-explained/ for details
       - '9092:9092'
     environment:
       TZ: Sao_Paulo/Brazil
