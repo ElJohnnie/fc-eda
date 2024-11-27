@@ -12,4 +12,4 @@ RUN go mod tidy
 # RUN chmod +x /entrypoint.sh
 
 # ENTRYPOINT ["/entrypoint.sh"]
-CMD ["go", "run", "cmd/balances/main.go"]
+CMD ["go", "run", "cmd/balance/main.go"]
